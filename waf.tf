@@ -1,10 +1,10 @@
-resource "azurerm_resource_group" "azureresourcegroup" {
+resource "azurerm_resource_group" "webapplicationfirewall" {
   name     = "Mcit-rg"
   location = "Canada Central"
 }
 
 resource "azurerm_web_application_firewall_policy" "example" {
-  name                = "example-wafpolicy"
+  name                = "Mcit-wafpolicy"
   resource_group_name = azurerm_resource_group.azureresourcegroup.name
   location            = azurerm_resource_group.azureresourcegroup.location
 

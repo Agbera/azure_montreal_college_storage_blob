@@ -1,36 +1,19 @@
 #This is an Azure Montreal College Tutorial for Storage Account creation--->Storage Container name Creation--->Storage Blob Creation
 locals{ 
-  cluster_names=["mcitk8s","mcitk8s2","mcitk8s3","mcitk8s4"]
+  cluster_names=["MontrealCollegeCluster","MontrealCollegeCluster2","MontrealCollegeCluster3","MontrealCollegeCluster4"]
 }
-resource "azurerm_resource_group" "azureresourcegrooup" {
-  name     = "MCIT_resource_group"
-  location = "Canada Central"
+
+
+resource "azurerm_resource_group" "montrealcollege" {
+  name     = "example-resources"
+  location = "West Europe"
 }
-resource "azurerm_storage_account" "azurestorageaccount" {
-  name                     = "${var.prefix}storageaccount"
-  resource_group_name      = azurerm_resource_group.azureresourcegroup.name
-  location                 = azurerm_resource_group.azureresourcegroup.location
-  account_tier             = var.account_tier
-  account_replication_type = "LRS"
-}
-resource "azurerm_storage_container" "azurestoragecontainer" {
-  name                  = "mcitcontent"
-  storage_account_name  = azurerm_storage_account.azurestorageaccount.name
-  container_access_type = "private"
-}
-resource "azurerm_storage_blob" "azurestorageblob" {
-  name                   = "my-awesome-content.zip"
-  storage_account_name   = azurerm_storage_account.azurestorageaccount.name
-  storage_container_name = azurerm_storage_container.azurestoragecontainer.name
-  type                   = "Block"
-  source                 = "some-local-file.zip"
-}
-resource "azurerm_kubernetes_cluster" "k8scluster" {
-  for_each            ={for cluster in local.cluster_names:cluster=>cluster}
-  name                = "${var.prefix}cluster-${each.key}"
-  location            = azurerm_resource_group.azureresourcegroup.location
-  resource_group_name = azurerm_resource_group.azureresourcegroup.name
-  dns_prefix          = "exampleaks1"
+
+resource "azurerm_kubernetes_cluster" "MontrealCollege" {
+  name                = "montrealcollege-aks1"
+  location            = azurerm_resource_group.montrealcollege.location
+  resource_group_name = azurerm_resource_group.montrealcollege.name
+  dns_prefix          = "montrealcollegeaks1"
 
   default_node_pool {
     name       = "default"
@@ -38,8 +21,9 @@ resource "azurerm_kubernetes_cluster" "k8scluster" {
     vm_size    = "Standard_D2_v2"
   }
 
-  identity {
-    type = "SystemAssigned"
+  service_principal {
+    client_id     = "00000000-0000-0000-0000-000000000000"
+    client_secret = "00000000000000000000000000000000"
   }
 
   tags = {
@@ -48,12 +32,9 @@ resource "azurerm_kubernetes_cluster" "k8scluster" {
 }
 
 output "client_certificate" {
-  value     = azurerm_kubernetes_cluster.k8scluster.kube_config.client_certificate
-  sensitive = true
+  value = azurerm_kubernetes_cluster.montrealcollege.kube_config.0.client_certificate
 }
 
 output "kube_config" {
-  value = azurerm_kubernetes_cluster.k8scluster.kube_config_raw
-
-  sensitive = true
+  value = azurerm_kubernetes_cluster.montrealcollege.kube_config_raw
 }

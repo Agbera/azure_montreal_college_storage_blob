@@ -7,13 +7,11 @@ resource "azurerm_resource_group" "montrealcollege" {
   location = "West Europe"
 }
 
-resource "azurerm_kubernetes_cluster" "montrealcollege" {
-  for_each = toset(local.cluster_names)
-
-  name                = "${each.value}-aks"
+resource "azurerm_kubernetes_cluster" "MontrealCollege" {
+  name                = "montrealcollege-aks1"
   location            = azurerm_resource_group.montrealcollege.location
   resource_group_name = azurerm_resource_group.montrealcollege.name
-  dns_prefix          = "${each.value}-aks-dns"
+  dns_prefix          = "montrealcollegeaks1"
 
   default_node_pool {
     name       = "default"
@@ -31,10 +29,12 @@ resource "azurerm_kubernetes_cluster" "montrealcollege" {
   }
 }
 
-output "client_certificates" {
-  value = { for cluster in azurerm_kubernetes_cluster.montrealcollege : cluster.name => cluster.kube_config.0.client_certificate }
+output "client_certificate" {
+  value     = azurerm_kubernetes_cluster.montrealcollege.kube_config.0.client_certificate
+  sensitive = true
 }
 
-output "kube_configs" {
-  value = { for cluster in azurerm_kubernetes_cluster.montrealcollege : cluster.name => cluster.kube_config_raw }
+output "kube_config" {
+  value     = azurerm_kubernetes_cluster.montrealcollege.kube_config_raw
+  sensitive = true
 }

@@ -37,4 +37,5 @@ output "client_certificates" {
 
 output "kube_configs" {
   value = { for cluster in azurerm_kubernetes_cluster.montrealcollege : cluster.name => cluster.kube_config_raw }
+  sensitive = true
 }
